@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "data-service"
+version = "0.1.0"
+description = ""
+authors = ["Artem Nosov <103992767+avnosov3@users.noreply.github.com>"]
+
+[tool.poetry.dependencies]
+python = "3.10.11"
+fastapi = {extras = ["standard"], version = "0.114.2"}
+pydantic-settings = "2.5.2"
+alembic = "1.13.2"
+sqlalchemy = "2.0.35"
+asyncpg = "0.28.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "3.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
