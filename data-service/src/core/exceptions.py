@@ -1,0 +1,2 @@
+class DateTimeWithoutTimezoneError(Exception):
+    pass
