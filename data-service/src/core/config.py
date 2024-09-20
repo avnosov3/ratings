@@ -9,6 +9,7 @@ class Settings(BaseSettings):
 
     DATABASE_DSN: PostgresDsn
     TEST_DATABASE_DSN: PostgresDsn
+    ECHO_ENABLED: bool = False
 
     @property
     def DATABASE_URL(self):
