@@ -37,8 +37,12 @@ class ReviewRepository(BaseRepository):
         self,
         accommodation_id: UUID,
         session: AsyncSession,
+        offset: int = 0,
+        limit: int = 1000,
     ) -> list[Review]:
-        result = await session.execute(select(Review).where(Review.accommodation_id == accommodation_id))
+        result = await session.execute(
+            select(Review).where(Review.accommodation_id == accommodation_id).offset(offset).limit(limit),
+        )
         reviews = result.scalars().all()
         return reviews
 

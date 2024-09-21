@@ -22,8 +22,10 @@ class BaseRepository(AbstractRepository):
     async def get_all(
         self,
         session: AsyncSession,
+        offset: int = 0,
+        limit: int = 1000,
     ) -> list[Base]:
-        objs = await session.scalars(select(self.model))
+        objs = await session.scalars(select(self.model).offset(offset).limit(limit))
         return objs.all()
 
     async def create(

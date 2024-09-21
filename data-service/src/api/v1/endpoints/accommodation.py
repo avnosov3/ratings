@@ -9,7 +9,7 @@ from src.schemas.review import ReviewOut
 from src.services.accommodation import AccommodationService, get_accommodation_service
 from src.services.review import ReviewService, get_review_service
 
-from . import ERROR_RESPONSE
+from . import ERROR_RESPONSE, Pagination
 
 router = APIRouter()
 
@@ -38,10 +38,11 @@ async def get_accommodation(
 
 @router.get("", response_model=list[AccommodationOut])
 async def get_accommodations(
+    pagination: Pagination = Depends(),
     accommodation_service: AccommodationService = Depends(get_accommodation_service),
     session: AsyncSession = Depends(get_async_session),
 ) -> list[AccommodationOut]:
-    return await accommodation_service.get_accommodations(session)
+    return await accommodation_service.get_accommodations(session, **pagination.model_dump())
 
 
 @router.get(
@@ -51,10 +52,11 @@ async def get_accommodations(
 )
 async def get_accommodation_reviews(
     accommodation_id: UUID,
+    pagination: Pagination = Depends(),
     review_service: ReviewService = Depends(get_review_service),
     session: AsyncSession = Depends(get_async_session),
 ) -> list[ReviewOut]:
-    return await review_service.get_reviews_by_accommodation(accommodation_id, session)
+    return await review_service.get_reviews_by_accommodation(accommodation_id, session, **pagination.model_dump())
 
 
 @router.get(

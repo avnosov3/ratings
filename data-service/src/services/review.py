@@ -17,8 +17,10 @@ class ReviewService:
         self,
         accommodation_id: UUID,
         session: AsyncSession,
+        offset: int = 0,
+        limit: int = 1000,
     ) -> list[Review]:
-        return await self.review_repository.get_reviews_by_accommodation(accommodation_id, session)
+        return await self.review_repository.get_reviews_by_accommodation(accommodation_id, session, offset, limit)
 
     async def get_review_by_accommodation(
         self,

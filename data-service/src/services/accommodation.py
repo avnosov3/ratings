@@ -23,8 +23,10 @@ class AccommodationService:
     async def get_accommodations(
         self,
         session: AsyncSession,
+        offset: int = 0,
+        limit: int = 1000,
     ) -> list[Accommodation]:
-        return await self.accommodation_repository.get_all(session)
+        return await self.accommodation_repository.get_all(session, offset, limit)
 
     async def get_expanded_accommodation(
         self,
