@@ -69,6 +69,20 @@ class ReviewIn(BaseModel):
         return validate_timezone(updated_at, "updated at without timezone")
 
 
+class ReviewOut(BaseModel):
+    id: UUID
+    title: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+    travel_date: Optional[str]
+    travel_party: Optional[str]
+    general_score: float
+    score_aspects: dict
+    status: ReviewStatus
+    text: str
+    zoover_review_id: int
+
+
 class LocaleIn(BaseModel):
     code: str = Field(..., alias="locale", max_length=LOCALE_CODE_LEN)
 
