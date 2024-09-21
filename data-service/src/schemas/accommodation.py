@@ -53,6 +53,32 @@ class AccommodationIn(BaseModel):
         )
 
 
+class AccommodationOut(BaseModel):
+    id: UUID
+    type: str
+    name: str
+    created_at: datetime
+    updated_at: datetime
+    slug: str
+    stars: int
+    zip_code: str
+    street: str
+    phone: str
+    email: str
+    is_bookable: bool
+    latitude: float
+    longitude: float
+    zoover_gold_award: bool
+    zoover_silver_award: bool
+    default_price: int
+    facts: list[dict]
+
+
+class ExpandedAccommodationOut(AccommodationOut):
+    files: list["FileOut"]
+    amenities: list["AmenityOut"]
+
+
 class FileIn(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -64,5 +90,17 @@ class FileIn(BaseModel):
     accommodation: Accommodation
 
 
+class FileOut(BaseModel):
+    id: UUID
+    title: str
+    source_url: str
+    is_top: bool = True
+    is_default: bool
+
+
 class AmenityIn(BaseModel):
     name: str = Field(..., max_length=AMENITY_NAME_LEN)
+
+
+class AmenityOut(AmenityIn):
+    name: str
