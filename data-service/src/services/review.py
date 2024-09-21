@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Optional
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,10 +18,19 @@ class ReviewService:
         self,
         accommodation_id: UUID,
         session: AsyncSession,
+        status: Optional[str] = None,
+        time_frame: Optional[str] = None,
         offset: int = 0,
         limit: int = 1000,
     ) -> list[Review]:
-        return await self.review_repository.get_reviews_by_accommodation(accommodation_id, session, offset, limit)
+        return await self.review_repository.get_reviews_by_accommodation(
+            accommodation_id,
+            session,
+            status,
+            time_frame,
+            offset,
+            limit,
+        )
 
     async def get_review_by_accommodation(
         self,

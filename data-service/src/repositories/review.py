@@ -1,4 +1,7 @@
+from datetime import datetime
+from enum import Enum
 from functools import lru_cache
+from typing import Optional
 from uuid import UUID
 
 from sqlalchemy import and_, select
@@ -6,6 +9,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.review import Locale, Review, Source
 
 from .base import BaseRepository
+
+
+class TimeFrame(str, Enum):
+    NEWER_THEN_TWO_YEARS = "newer_than_2_years"
+    OLDER_THEN_TWO_YEARS = "older_than_2_years"
 
 
 class ReviewRepository(BaseRepository):
@@ -37,12 +45,26 @@ class ReviewRepository(BaseRepository):
         self,
         accommodation_id: UUID,
         session: AsyncSession,
+        status: Optional[str] = None,
+        time_frame: Optional[str] = None,
         offset: int = 0,
         limit: int = 1000,
     ) -> list[Review]:
-        result = await session.execute(
-            select(Review).where(Review.accommodation_id == accommodation_id).offset(offset).limit(limit),
-        )
+        query = select(Review).where(Review.accommodation_id == accommodation_id)
+        if status is not None:
+            query = query.where(Review.status == status)
+
+        if time_frame is not None:
+            two_years_ago = datetime.utcnow().replace(year=datetime.utcnow().year - 2)
+            time_frame_mapper = {
+                TimeFrame.NEWER_THEN_TWO_YEARS: Review.updated_at >= two_years_ago,
+                TimeFrame.OLDER_THEN_TWO_YEARS: Review.updated_at < two_years_ago,
+            }
+            query = query.where(time_frame_mapper[time_frame])
+
+        query = query.offset(offset).limit(limit)
+
+        result = await session.execute(query)
         reviews = result.scalars().all()
         return reviews
 
