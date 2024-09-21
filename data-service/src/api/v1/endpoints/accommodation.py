@@ -10,6 +10,7 @@ from src.services.accommodation import AccommodationService, get_accommodation_s
 from src.services.review import ReviewService, get_review_service
 
 from . import ERROR_RESPONSE, Pagination
+from .filters import AccommodationFilters
 
 router = APIRouter()
 
@@ -53,10 +54,16 @@ async def get_accommodations(
 async def get_accommodation_reviews(
     accommodation_id: UUID,
     pagination: Pagination = Depends(),
+    accommodation_filters: AccommodationFilters = Depends(),
     review_service: ReviewService = Depends(get_review_service),
     session: AsyncSession = Depends(get_async_session),
 ) -> list[ReviewOut]:
-    return await review_service.get_reviews_by_accommodation(accommodation_id, session, **pagination.model_dump())
+    return await review_service.get_reviews_by_accommodation(
+        accommodation_id,
+        session,
+        **pagination.model_dump(),
+        **accommodation_filters.model_dump(),
+    )
 
 
 @router.get(
