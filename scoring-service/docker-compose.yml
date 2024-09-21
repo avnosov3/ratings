@@ -1,0 +1,42 @@
+networks:
+  ratings:
+    external: true
+
+
+services:
+  redis:
+    container_name: redis
+    image: redis:7.2.1-alpine
+    restart: always
+    ports:
+    - 6379:6379
+    volumes:
+    - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+    - ratings
+
+  scoring-service:
+    container_name: scoring-service
+    image: scoring-service:1.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn src.main:create_app --factory --host 0.0.0.0 --port 8000
+    ports:
+    - "8001:8000"
+    env_file:
+    - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+    - ratings
+
+volumes:
+  redis_data:
+    name: scoring-service-redis-data
