@@ -6,3 +6,8 @@ class HTTPExceptionSchema(BaseModel):
 
 
 ERROR_RESPONSE = {"model": HTTPExceptionSchema}
+
+
+class Pagination(BaseModel):
+    offset: int = 0
+    limit: int = 1000
