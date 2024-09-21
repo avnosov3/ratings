@@ -42,7 +42,7 @@ class ScoreFilter(BaseModel):
 class BaseScore(BaseModel):
     id: UUID
     general_score: int
-    updated_at: datetime
+    created_at: datetime
     score_aspects: dict
 
 

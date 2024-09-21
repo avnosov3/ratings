@@ -4,8 +4,12 @@ from math import log
 from typing import Optional
 from uuid import UUID
 
+from fastapi import Depends
 from src.core.client import CustomAsyncClient, get_custom_client
+from src.core.config import settings
 from src.schemas.scoring import ScoreIn
+
+from .cache import CacheRedis, cache_handler, get_cache
 
 
 class LogarithmError(Exception):
@@ -17,8 +21,9 @@ class ScoreNotFoundError(Exception):
 
 
 class ScoreService:
-    def __init__(self, client: CustomAsyncClient) -> None:
+    def __init__(self, client: CustomAsyncClient, cache: CacheRedis) -> None:
         self.client = client
+        self.cache = cache
 
     async def _get_scores(
         self,
@@ -26,7 +31,7 @@ class ScoreService:
         time_frame: str,
         offset: int,
         limit: int,
-        url: str = "http://localhost:8000",
+        url: str = settings.DATA_SERVICE_ULR,
     ) -> dict:
         full_url = f"{url}/accommodations/{accommodation_id}/reviews"
         reviews = await self.client.get(
@@ -56,13 +61,7 @@ class ScoreService:
         return: dict[uuid: (score, weight).
         raise: LogarithmError.
         """
-        (
-            start,
-            end,
-        ) = (
-            0,
-            1000,
-        )
+        start, end = 0, 1000
         new_scores = await self.get_new_scores(accommodation_id, start, end)
         new_scores_mapper = {}
         while new_scores:
@@ -142,12 +141,14 @@ class ScoreService:
 
         return {score_aspect: round(result, 2)}
 
+    @cache_handler(60 * 60 * 3)
     async def get_general_score(
         self,
         accommodation_id: UUID,
     ) -> dict:
         return await self.compute_overall_score(accommodation_id)
 
+    @cache_handler(60 * 60 * 3)
     async def get_score_aspect(
         self,
         accommodation_id: UUID,
@@ -157,5 +158,7 @@ class ScoreService:
 
 
 @lru_cache
-def get_score_service() -> ScoreService:
-    return ScoreService(get_custom_client())
+def get_score_service(
+    cache: CacheRedis = Depends(get_cache),
+) -> ScoreService:
+    return ScoreService(get_custom_client(), cache)
