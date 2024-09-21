@@ -13,10 +13,6 @@ COPY poetry.lock pyproject.toml ./
 RUN poetry config virtualenvs.create false \
     && poetry install --with main --no-ansi --no-root
 
-COPY ./alembic.ini ./
-
-COPY ./accommodations.json ./
-
-COPY ./reviews.json ./
-
 COPY ./src ./src
+
+COPY ./tests ./tests

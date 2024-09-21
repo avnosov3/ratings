@@ -1,3 +1,7 @@
+networks:
+  ratings:
+    external: true
+
 services:
   db:
     container_name: db
@@ -18,8 +22,10 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
+    networks:
+    - ratings
 
-  app:
+  data-service:
     container_name: data-service
     image: data-service:1.0
     build:
@@ -33,6 +39,16 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+    - ratings
+
+  adminer:
+    image: adminer:4.8.1-standalone
+    restart: always
+    ports:
+    - 8777:8080
+    networks:
+    - ratings
 
 volumes:
   postgres:
