@@ -1,6 +1,8 @@
 from functools import lru_cache
+from typing import Annotated
 from uuid import UUID
 
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.accommodation import Accommodation
 from src.repositories.accommodation import AccommodationRepository, get_accommodation_repository
@@ -39,3 +41,6 @@ class AccommodationService:
 @lru_cache
 def get_accommodation_service() -> AccommodationService:
     return AccommodationService(get_accommodation_repository())
+
+
+AccommodationServiceDependency = Annotated[AccommodationService, Depends(get_accommodation_service)]

@@ -1,16 +1,15 @@
 from typing import Optional, Union
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from src.core.db import get_async_session
+from fastapi import APIRouter, HTTPException, status
+from src.core.db import AsyncSessionDependency
 from src.schemas.accommodation import AccommodationOut, ExpandedAccommodationOut
 from src.schemas.review import ReviewOut
-from src.services.accommodation import AccommodationService, get_accommodation_service
-from src.services.review import ReviewService, get_review_service
+from src.services.accommodation import AccommodationServiceDependency
+from src.services.review import ReviewServiceDependancy
 
-from . import ERROR_RESPONSE, Pagination
-from .filters import AccommodationFilters
+from . import ERROR_RESPONSE, PaginationDependancy
+from .filters import AccommodationFiltersDependency
 
 router = APIRouter()
 
@@ -22,9 +21,10 @@ router = APIRouter()
 )
 async def get_accommodation(
     accommodation_id: UUID,
+    *,
     expand: Optional[bool] = False,
-    accommodation_service: AccommodationService = Depends(get_accommodation_service),
-    session: AsyncSession = Depends(get_async_session),
+    accommodation_service: AccommodationServiceDependency,
+    session: AsyncSessionDependency,
 ) -> Union[AccommodationOut, ExpandedAccommodationOut]:
     args = (accommodation_id, session)
     if expand:
@@ -39,9 +39,9 @@ async def get_accommodation(
 
 @router.get("", response_model=list[AccommodationOut])
 async def get_accommodations(
-    pagination: Pagination = Depends(),
-    accommodation_service: AccommodationService = Depends(get_accommodation_service),
-    session: AsyncSession = Depends(get_async_session),
+    pagination: PaginationDependancy,
+    accommodation_service: AccommodationServiceDependency,
+    session: AsyncSessionDependency,
 ) -> list[AccommodationOut]:
     return await accommodation_service.get_accommodations(session, **pagination.model_dump())
 
@@ -53,10 +53,10 @@ async def get_accommodations(
 )
 async def get_accommodation_reviews(
     accommodation_id: UUID,
-    pagination: Pagination = Depends(),
-    accommodation_filters: AccommodationFilters = Depends(),
-    review_service: ReviewService = Depends(get_review_service),
-    session: AsyncSession = Depends(get_async_session),
+    pagination: PaginationDependancy,
+    accommodation_filters: AccommodationFiltersDependency,
+    review_service: ReviewServiceDependancy,
+    session: AsyncSessionDependency,
 ) -> list[ReviewOut]:
     return await review_service.get_reviews_by_accommodation(
         accommodation_id,
@@ -74,8 +74,8 @@ async def get_accommodation_reviews(
 async def get_accommodation_review(
     accommodation_id: UUID,
     review_id: UUID,
-    review_service: ReviewService = Depends(get_review_service),
-    session: AsyncSession = Depends(get_async_session),
+    review_service: ReviewServiceDependancy,
+    session: AsyncSessionDependency,
 ) -> ReviewOut:
     review = await review_service.get_review_by_accommodation(accommodation_id, review_id, session)
     if review is None:

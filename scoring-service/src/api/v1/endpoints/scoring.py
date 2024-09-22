@@ -1,9 +1,9 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 from src.core.client import StatusCodeNotOKError
-from src.schemas.scoring import ScoreFilter
-from src.services.scoring import LogarithmError, ScoreNotFoundError, ScoreService, get_score_service
+from src.schemas.scoring import ScoreFilterDependancy
+from src.services.scoring import LogarithmError, ScoreNotFoundError, ScoreServiceDependancy
 
 from . import ERROR_RESPONSE
 
@@ -28,8 +28,8 @@ router = APIRouter()
 )
 async def get_score(
     accommodation_id: UUID,
-    score_filter: ScoreFilter = Depends(),
-    score_service: ScoreService = Depends(get_score_service),
+    score_filter: ScoreFilterDependancy,
+    score_service: ScoreServiceDependancy,
 ) -> dict:
     try:
         score_aspect = score_filter.score_aspect

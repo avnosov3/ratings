@@ -1,7 +1,7 @@
 from datetime import datetime
 from functools import lru_cache
 from math import log
-from typing import Optional
+from typing import Annotated, Optional
 from uuid import UUID
 
 from fastapi import Depends
@@ -9,7 +9,7 @@ from src.core.client import CustomAsyncClient, get_custom_client
 from src.core.config import settings
 from src.schemas.scoring import ScoreIn
 
-from .cache import CacheRedis, cache_handler, get_cache
+from .cache import CacheDependancy, CacheRedis, cache_handler
 
 
 class LogarithmError(Exception):
@@ -141,14 +141,14 @@ class ScoreService:
 
         return {score_aspect: round(result, 2)}
 
-    @cache_handler(60 * 60 * 3)
+    @cache_handler("general_score", 60 * 60 * 3)
     async def get_general_score(
         self,
         accommodation_id: UUID,
     ) -> dict:
         return await self.compute_overall_score(accommodation_id)
 
-    @cache_handler(60 * 60 * 3)
+    @cache_handler("score_aspect", 60 * 60 * 3)
     async def get_score_aspect(
         self,
         accommodation_id: UUID,
@@ -159,6 +159,9 @@ class ScoreService:
 
 @lru_cache
 def get_score_service(
-    cache: CacheRedis = Depends(get_cache),
+    cache: CacheDependancy,
 ) -> ScoreService:
     return ScoreService(get_custom_client(), cache)
+
+
+ScoreServiceDependancy = Annotated[ScoreService, Depends(get_score_service)]
