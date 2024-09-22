@@ -1,8 +1,9 @@
 import pickle
 from abc import ABC, abstractmethod
 from functools import wraps
-from typing import Any, Callable, Optional, Union
+from typing import Annotated, Any, Callable, Optional, Union
 
+from fastapi import Depends
 from redis.asyncio import ConnectionPool as AsyncConnectionPool
 from redis.asyncio.client import Redis as AsyncRedis
 from src.core.config import settings
@@ -46,7 +47,10 @@ async def get_cache() -> CacheRedis:
         await cache.close()
 
 
-def cache_handler(expire: Optional[int] = settings.CACHE_LIFETIME) -> Callable[[Any], Any]:
+CacheDependancy = Annotated[CacheRedis, Depends(get_cache)]
+
+
+def cache_handler(name: str, expire: Optional[int] = settings.CACHE_LIFETIME) -> Callable[[Any], Any]:
     def decorator(func: Callable) -> Callable[[Any], Any]:
         @wraps(func)
         async def wrapper(*args, **kwargs) -> Any:
@@ -57,7 +61,7 @@ def cache_handler(expire: Optional[int] = settings.CACHE_LIFETIME) -> Callable[[
             if cache is None:
                 raise ValueError("class does not have redis")
 
-            key = f"{func.__name__}__{args[1]}"
+            key = hash(f"{name}{str(args[1:])}{kwargs}")
 
             item = await cache.get(key)
             if item:

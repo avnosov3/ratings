@@ -1,7 +1,8 @@
 from functools import lru_cache
-from typing import Optional
+from typing import Annotated, Optional
 from uuid import UUID
 
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.review import Review
 from src.repositories.review import ReviewRepository, get_review_repository
@@ -44,3 +45,6 @@ class ReviewService:
 @lru_cache
 def get_review_service() -> ReviewService:
     return ReviewService(get_review_repository())
+
+
+ReviewServiceDependancy = Annotated[ReviewService, Depends(get_review_service)]

@@ -1,3 +1,6 @@
+from typing import Annotated
+
+from fastapi import Depends
 from pydantic import BaseModel
 
 
@@ -11,3 +14,6 @@ ERROR_RESPONSE = {"model": HTTPExceptionSchema}
 class Pagination(BaseModel):
     offset: int = 0
     limit: int = 1000
+
+
+PaginationDependancy = Annotated[Pagination, Depends()]
