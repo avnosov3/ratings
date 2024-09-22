@@ -1,0 +1,11 @@
+**/__pycache__/
+.pytest_cache/
+.mypy_cache/
+.idea/
+.git/
+.vscode/
+
+.gitignore
+.env.example
+Makefile
+README.md
