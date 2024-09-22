@@ -48,3 +48,6 @@ migrate:
 
 import:
 	$(DOCKER_COMPOSE_COMMAND) -f ${DATA-SERVICE} exec data-service python -m src.upload accommodations.json reviews.json
+
+tests:
+	$(DOCKER_COMPOSE_COMMAND) -f ${SCORING-SERVICE} exec scoring-service pytest

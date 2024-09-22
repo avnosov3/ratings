@@ -6,7 +6,6 @@ from uuid import UUID
 
 from dateutil.relativedelta import relativedelta
 from fastapi import Depends
-
 from src.core.client import CustomAsyncClient, get_custom_client
 from src.core.config import settings
 from src.schemas.scoring import ScoreIn
@@ -73,7 +72,7 @@ class ScoreService:
         raise: LogarithmError.
         """
         start, end = 0, 1000
-        new_scores = await self.get_new_scores(accommodation_id, start, end)
+        new_scores = await self.get_new_scores(accommodation_id, start, end, score_aspect)
         new_scores_mapper = {}
         while new_scores:
             for new_score in new_scores:
@@ -88,7 +87,7 @@ class ScoreService:
                 new_scores_mapper[new_score.id] = (weigth * score, weigth)
             start = end + 1
             end = end + 1000
-            new_scores = await self.get_new_scores(accommodation_id, start, end)
+            new_scores = await self.get_new_scores(accommodation_id, start, end, score_aspect)
 
         return new_scores_mapper
 
