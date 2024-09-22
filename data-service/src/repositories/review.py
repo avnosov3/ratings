@@ -6,6 +6,7 @@ from uuid import UUID
 
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.models.review import Locale, Review, Source
 
 from .base import BaseRepository
@@ -36,8 +37,8 @@ class ReviewRepository(BaseRepository):
         if time_frame is not None:
             two_years_ago = datetime.utcnow().replace(year=datetime.utcnow().year - 2)
             time_frame_mapper = {
-                TimeFrame.NEWER_THEN_TWO_YEARS: Review.updated_at >= two_years_ago,
-                TimeFrame.OLDER_THEN_TWO_YEARS: Review.updated_at < two_years_ago,
+                TimeFrame.NEWER_THEN_TWO_YEARS: Review.created_at >= two_years_ago,
+                TimeFrame.OLDER_THEN_TWO_YEARS: Review.created_at < two_years_ago,
             }
             query = query.where(time_frame_mapper[time_frame])
 

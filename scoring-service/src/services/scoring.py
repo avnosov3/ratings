@@ -1,10 +1,12 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import lru_cache
 from math import log
 from typing import Annotated, Optional
 from uuid import UUID
 
+from dateutil.relativedelta import relativedelta
 from fastapi import Depends
+
 from src.core.client import CustomAsyncClient, get_custom_client
 from src.core.config import settings
 from src.schemas.scoring import ScoreIn
@@ -24,6 +26,15 @@ class ScoreService:
     def __init__(self, client: CustomAsyncClient, cache: CacheRedis) -> None:
         self.client = client
         self.cache = cache
+
+    @staticmethod
+    def compute_months_amount(
+        end_date: datetime,
+        start_date: datetime,
+    ) -> int:
+        delta = relativedelta(end_date, start_date)
+        months_in_year = 12
+        return delta.years * months_in_year + delta.months
 
     async def _get_scores(
         self,
@@ -66,9 +77,9 @@ class ScoreService:
         new_scores_mapper = {}
         while new_scores:
             for new_score in new_scores:
-                updated_at_month = new_score.updated_at.month
-                current_month = datetime.utcnow().month
-                arg = 25 - (current_month - updated_at_month)
+                current_datetime = datetime.now(timezone.utc)
+                months_amount = self.compute_months_amount(current_datetime, new_score.created_at)
+                arg = 25 - months_amount
                 if arg <= 0:
                     raise LogarithmError(f"Argument={arg} was less than 0")
 
