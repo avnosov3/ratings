@@ -2,6 +2,7 @@ from typing import Optional, Union
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
+
 from src.core.db import AsyncSessionDependency
 from src.schemas.accommodation import AccommodationOut, ExpandedAccommodationOut
 from src.schemas.review import ReviewOut

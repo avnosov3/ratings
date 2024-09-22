@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt
+
 from src.models.accommodation import (
     ACCOMMODATION_EMAIL_LEN,
     ACCOMMODATION_NAME_LEN,

@@ -2,6 +2,7 @@ from math import log
 from unittest.mock import AsyncMock
 
 import pytest
+
 from src.services.scoring import ScoreNotFoundError, ScoreService
 
 

@@ -6,6 +6,7 @@ from typing import Annotated, Any, Callable, Optional, Union
 from fastapi import Depends
 from redis.asyncio import ConnectionPool as AsyncConnectionPool
 from redis.asyncio.client import Redis as AsyncRedis
+
 from src.core.config import settings
 
 

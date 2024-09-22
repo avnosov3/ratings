@@ -4,6 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, field_validator
+
 from src.models.accommodation import Accommodation
 from src.models.review import (
     LOCALE_CODE_LEN,

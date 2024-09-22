@@ -1,6 +1,7 @@
 from typing import Optional
 
 from pydantic import BaseModel, Field
+
 from src.models.user import USER_EMAIL_LEN, USER_IPADDRES_LEN, USER_NAME_LEN
 
 

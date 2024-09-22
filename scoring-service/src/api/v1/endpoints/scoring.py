@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
+
 from src.core.client import StatusCodeNotOKError
 from src.schemas.scoring import ScoreFilterDependancy
 from src.services.scoring import LogarithmError, ScoreNotFoundError, ScoreServiceDependancy

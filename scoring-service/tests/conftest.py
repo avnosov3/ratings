@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 from httpx import AsyncClient
+
 from src.core.config import settings
 from src.main import create_app
 from src.services.cache import CacheRedis, get_cache
