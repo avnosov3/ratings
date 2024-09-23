@@ -71,9 +71,8 @@ class ScoreService:
         return: dict[uuid: (score, weight).
         raise: LogarithmError.
         """
-        start, end = 0, 1000
+        start, end, score_sum, weigthed_sum = 0, 1000, 0, 0
         new_scores = await self.get_new_scores(accommodation_id, start, end, score_aspect)
-        new_scores_mapper = {}
         while new_scores:
             for new_score in new_scores:
                 current_datetime = datetime.now(timezone.utc)
@@ -84,12 +83,13 @@ class ScoreService:
 
                 score = new_score.general_score if score_aspect is None else new_score.score_aspects[score_aspect]
                 weigth = log(arg)
-                new_scores_mapper[new_score.id] = (weigth * score, weigth)
+                score_sum += weigth * score
+                weigthed_sum += weigth
             start = end + 1
             end = end + 1000
             new_scores = await self.get_new_scores(accommodation_id, start, end, score_aspect)
 
-        return new_scores_mapper
+        return score_sum, weigthed_sum
 
     async def get_old_scores(
         self,
@@ -139,12 +139,12 @@ class ScoreService:
         score_aspect: Optional[str] = None,
     ) -> dict:
         weighted_old_score, weight = await self.compute_old_score(accommodation_id, score_aspect=score_aspect)
-        weighted_new_scores = await self.compute_new_score(accommodation_id, score_aspect=score_aspect)
-        numerator = weighted_old_score
-        denominator = weight
-        for weighted_new_score, weight in weighted_new_scores.values():
-            numerator += weighted_new_score
-            denominator += weight
+        weighted_new_scores, new_scores_weight = await self.compute_new_score(
+            accommodation_id,
+            score_aspect=score_aspect,
+        )
+        numerator = weighted_old_score + weighted_new_scores
+        denominator = weight + new_scores_weight
         result = numerator / denominator
         if score_aspect is None:
             return {"general_score": round(result, 2)}
